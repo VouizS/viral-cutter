@@ -2,7 +2,7 @@ name: Build Android APK
 
 on:
   push:
-    branches: [ main, master ]
+    branches: [ main ]
   workflow_dispatch:
 
 jobs:
@@ -10,8 +10,7 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
 
       - name: Set up Java
         uses: actions/setup-java@v4
@@ -25,14 +24,16 @@ jobs:
           channel: 'stable'
 
       - name: Generate Android project structure
-        run: flutter create --platforms=android .
+        run: flutter create . --platforms android
+
+      - name: Ajustar compileSdk para 36
+        run: |
+          find android -type f \( -name "build.gradle" -o -name "build.gradle.kts" \) -exec sed -i -E 's/(compileSdkVersion|compileSdk)[[:space:]=]+.*/compileSdk = 36/g' {} +
 
       - name: Install dependencies
         run: flutter pub get
 
       - name: Build APK
-      - name: Ajustar compileSdk para 36
-        run: find android -type f ( -name "build.gradle" -o -name "build.gradle.kts" ) -exec sed -i -E 's/(compileSdkVersion|compileSdk)[[:space:]=]+.*/compileSdk = 36/g' {} +
         run: flutter build apk --split-per-abi
 
       - name: Upload APK Artifact
