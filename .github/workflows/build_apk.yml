@@ -31,6 +31,8 @@ jobs:
         run: flutter pub get
 
       - name: Build APK
+      - name: Ajustar compileSdk para 36
+        run: find android -type f ( -name "build.gradle" -o -name "build.gradle.kts" ) -exec sed -i -E 's/(compileSdkVersion|compileSdk)[[:space:]=]+.*/compileSdk = 36/g' {} +
         run: flutter build apk --split-per-abi
 
       - name: Upload APK Artifact
