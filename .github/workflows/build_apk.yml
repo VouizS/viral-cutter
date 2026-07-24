@@ -26,9 +26,20 @@ jobs:
       - name: Generate Android project structure
         run: flutter create . --platforms android
 
-      - name: Ajustar compileSdk para 36
+      - name: Forçar compileSdk 36 em todos os subprojetos (plugins)
         run: |
-          find android -type f \( -name "build.gradle" -o -name "build.gradle.kts" \) -exec sed -i -E 's/(compileSdkVersion|compileSdk)[[:space:]=]+.*/compileSdk = 36/g' {} +
+          cat << 'GRADLE_EOF' >> android/build.gradle
+
+          subprojects {
+              afterEvaluate { project ->
+                  if (project.hasProperty('android')) {
+                      project.android {
+                          compileSdkVersion 36
+                      }
+                  }
+              }
+          }
+          GRADLE_EOF
 
       - name: Install dependencies
         run: flutter pub get
